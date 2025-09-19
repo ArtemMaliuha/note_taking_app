@@ -1,0 +1,473 @@
+const notesArray = localStorage.getItem("myNotes") ? JSON.parse(localStorage.getItem("myNotes")) : []
+const notes = document.getElementById("notes")
+let tagsArray = localStorage.getItem("myTags") ? JSON.parse(localStorage.getItem("myTags")) : []
+
+document.addEventListener("DOMContentLoaded", renderNotes)
+document.addEventListener("DOMContentLoaded", renderTagsToSidebar)
+
+
+
+function expandInput() {
+    const mainContent = document.getElementById("inputFields")
+    const titleInput = document.getElementById("title-input")
+    if(!mainContent.querySelector("#noteInput")){
+        const input = document.createElement("input")
+        input.placeholder = "Write your note here"
+        input.id = "noteInput"
+        document.getElementById("inputFields").appendChild(input)
+        titleInput.classList.add("expanded")
+        const buttons = document.createElement("div")
+        buttons.className = "buttons"
+        buttons.id="buttons"
+        document.getElementById("inputFields").appendChild(buttons)
+        const saveBtn = document.createElement("button")
+        saveBtn.textContent = "Save"
+        saveBtn.className = "button"
+        saveBtn.id = "saveBtn"
+        saveBtn.onclick = save
+        const closeBtn = document.createElement("button")
+        closeBtn.textContent="Close"
+        closeBtn.className = "button"
+        closeBtn.id = "closeBtn"
+        closeBtn.onclick = close
+        document.getElementById("buttons").appendChild(saveBtn)
+        document.getElementById("buttons").appendChild(closeBtn)
+    }
+} //розширення інпута 
+
+function save() {
+    const title = document.getElementById("title-input").value
+    const note = document.getElementById("noteInput").value
+    if (title.trim() === "" || note.trim() === "") return;
+    const fullNote = {
+        title,
+        note,
+        id : Date.now(),
+        isArchived: false,
+        isDeleted: false,
+        tags: [],
+        backgroundColor: "white",
+        textColor: "black"
+    }
+    notesArray.push(fullNote)
+    localStorage.setItem("myNotes", JSON.stringify(notesArray))
+    renderNotes()
+    document.getElementById("title-input").value = ''
+    return notesArray
+} //збереження нотаток
+
+function close() {
+    document.getElementById("title-input").classList.remove("expanded")
+    document.getElementById("noteInput").remove()
+    document.getElementById("buttons").remove()
+} //закрити розширене поле вводу
+
+function renderNotes() {
+    const inputBar = `<input type="text"  id="title-input" class="title-input" placeholder="Enter note title" onclick="expandInput()">` 
+    document.getElementById("inputFields").innerHTML = inputBar
+
+    let notesHtml = ``
+    notesArray.forEach(note => {
+        if (note.isArchived === false && note.isDeleted === false) {
+            const safeTitle = escapeHTML(note.title)
+            const safeNote = escapeHTML(note.note)
+            notesHtml += `
+            <article onmouseenter="renderOptions(${note.id})" onmouseleave="discard(${note.id})" id="note-${note.id}" style="background-color: ${note.backgroundColor}; color: ${note.textColor};">
+                <h2>${safeTitle}</h2>
+                <p>${safeNote}</p>
+                <div class="note-tags ${note.tags.length === 0 ? "hidden" : ''}" id="noteTags-${note.id}">${renderNoteTags(note.id)}</div>
+                <div class="options" id="options-${note.id}"></div>  
+            </article>`
+        }
+    })
+    notes.innerHTML = notesHtml
+} //рендер нотаток
+
+function renderOptions(id) {
+    optionsHtml = `
+        <label for="create-color-${id}">
+            <i class="fa-solid fa-palette" id="paletteBtn-${id}"></i>
+            <input type="color" id="create-color-${id}" style="display: none" onchange="changeColor(${id})">
+        </label>
+        <i class="fa-solid fa-box-archive" id="archiveBtn-${id}" onclick="archiveNote(${id})"></i>
+        <i class="fa-solid fa-trash" id="deleteBtn-${id}" onclick="deleteNote(${id})"></i>
+        <div class="note-menu-wrapper">
+            <i class="fa-solid fa-ellipsis-vertical" id="optionsMenu-${id}" onclick="renderNoteFunctions(${id})"\></i>
+            <div class="note-functions" id="noteFunctions-${id}">
+                <button onclick=addTagToNoteMenu(${id})>Add tag to this note</button>
+                <button onclick=deleteNote(${id})>Delete</button>
+                <label for="createTextColor-${id}">
+                    <span>Change text color</span>
+                    <input type="color" id="createTextColor-${id}" style="display: none" onchange="changeTextColor(${id})">
+                </label>
+            </div>
+            <div class="choose-tag-menu" id="chooseTagMenu-${id}">
+                <h3>Choose tag to add</h3>
+                <div class="tag-search">
+                    <input type="text" placeholder="Type tag name" id="findTag-${id}">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <div class="choose-tag" id="chooseTag-${id}"></div>
+            </div>
+        </div>
+        `
+    document.getElementById(`options-${id}`).innerHTML = optionsHtml
+} //рендер опцій для нотаток
+
+function discard(id) {
+    document.getElementById(`archiveBtn-${id}`).remove()
+    document.getElementById(`deleteBtn-${id}`).remove()
+    document.getElementById(`paletteBtn-${id}`).remove()
+    document.getElementById(`optionsMenu-${id}`).remove()
+} //закриття опцій для нотаток
+
+function deleteNote(id) {
+    const newNotesArray = []
+    notesArray.forEach(item => {
+        if(item.id === id){
+            item.isDeleted = !item.isDeleted
+            newNotesArray.push(item)
+        }else{
+            newNotesArray.push(item)
+        }
+    })
+    localStorage.setItem("myNotes", JSON.stringify(newNotesArray))
+
+    const activeSection = document.querySelector(".sidebar-el.active").id
+    if(activeSection === "myNotes"){
+        renderNotes()
+    }else {
+        renderDeleted()
+    }
+} //видалення нотатки
+
+function archiveNote(id) {
+    const newNotesArray = []
+    notesArray.forEach(item => {
+        if(item.id === id){
+            item.isArchived = !item.isArchived
+            newNotesArray.push(item)
+        }else{
+            newNotesArray.push(item)
+        }
+    })
+    localStorage.setItem("myNotes", JSON.stringify(newNotesArray))
+    
+    const activeSection = document.querySelector(".sidebar-el.active").id
+    if(activeSection === "myNotes"){
+        renderNotes()
+    }else {
+        renderArchive()
+    }
+} //архівування нотатки
+
+function showSection(id){
+    document.querySelectorAll(".sidebar-el").forEach(item =>{
+        item.classList.remove("active")
+    })
+    document.getElementById(id).classList.add("active")
+    if(id === "myNotes"){
+        renderNotes() 
+    } else if(id === "archive"){
+        renderArchive()
+    }else if( id === "deleted"){
+        renderDeleted()
+    }else{
+        const tagId = parseInt(id.replace("element-", ""))
+        renderFilter(tagId)
+    }
+} //відображення потрібного розділу
+
+function renderArchive() {
+    document.getElementById("inputFields").innerHTML = ''
+    document.getElementById("notes").innerHTML = ''
+    let archivedNotes = []
+    let notesHtml = ``
+    notesArray.forEach(note => {
+        if (note.isArchived === true && note.isDeleted === false) {
+            archivedNotes.push(note)
+            const safeTitle = escapeHTML(note.title)
+            const safeNote = escapeHTML(note.note)
+            notesHtml += `
+            <article onmouseenter="renderOptions(${note.id})" onmouseleave="discard(${note.id})" id="note-${note.id}">
+                <h2>${safeTitle}</h2>
+                <p>${safeNote}</p>
+                <div class="options" id="options-${note.id}"></div>  
+            </article>`
+        }
+    })
+    if(archivedNotes.length === 0){
+        notesHtml=`<div class="no-archived-notes">
+            <i class="fa-solid fa-box-archive"></i>
+            <p>There are no archived notes</p>
+        </div>`
+    }
+    notes.innerHTML = notesHtml
+} // рендер архіву
+
+function renderDeleted() {
+    document.getElementById("inputFields").innerHTML = ''
+    document.getElementById("notes").innerHTML = ''
+    let deletedNotes = []
+    let notesHtml = ``
+    notesArray.forEach(note => {
+        if (note.isArchived === false && note.isDeleted === true) {
+            const safeTitle = escapeHTML(note.title)
+            const safeNote = escapeHTML(note.note)
+            deletedNotes.push(note)
+            notesHtml += `
+            <article onmouseenter="renderOptions(${note.id})" onmouseleave="discard(${note.id})" id="note-${note.id}">
+                <h2>${safeTitle}</h2>
+                <p>${safeNote}</p>
+                <div class="options" id="options-${note.id}"></div>  
+            </article>`
+        }
+    })
+    if(deletedNotes.length === 0){
+        notesHtml=`<div class="no-archived-notes">
+            <i class="fa-solid fa-trash"></i>
+            <p>There are no deleted notes</p>
+        </div>`
+    }
+    notes.innerHTML = notesHtml
+}//рендер видалених
+
+function escapeHTML(str) {
+    const div = document.createElement("div")
+    div.appendChild(document.createTextNode(str))
+    return div.innerHTML
+}//уникнення можливості додавати html елементи через input
+
+function changeColor(id) {
+    document.getElementById(`note-${id}`).style.backgroundColor = document.getElementById(`create-color-${id}`).value
+    const thisNote = notesArray.find(n => n.id === id)
+    thisNote.backgroundColor = document.getElementById(`create-color-${id}`).value
+    localStorage.setItem("myNotes", JSON.stringify(notesArray))
+} //зміна кольору нотатки
+
+function changeTextColor(id){
+    document.getElementById(`note-${id}`).style.color = document.getElementById(`createTextColor-${id}`).value
+    const thisNote = notesArray.find(n => n.id === id)
+    thisNote.textColor = document.getElementById(`create-color-${id}`).value
+    localStorage.setItem("myNotes", JSON.stringify(notesArray))
+}
+
+function manageTags() {
+    const div = document.getElementById("manageTagsDiv")
+    const overlay = document.getElementById("overlay")
+    const isHidden = getComputedStyle(div).display === "none"
+    if(isHidden){
+        div.innerHTML = `
+        <p>Manage Tags</p>
+        <div class="tags-input">
+            <input type="text" id="tagInput">
+            <button onclick= saveTags()><i class="fa-solid fa-check"></i></button>
+        </div>
+        <ul id="tagsList">
+        </ul>  
+        <hr>
+        <button class="closeTagBtn" onclick="closeTags()">Close</button>
+        `
+        overlay.style.display = "block"
+        div.style.display = "block"
+    }else {
+        div.style.display = "none"
+        overlay.style.display = "none"
+    }
+    createTagsList()
+}//меню керування тегами
+
+function createTagsList() {
+    document.getElementById("tagsList").innerHTML = ''
+    tagsArray.forEach(tag => {
+        const createTag = document.createElement("li")
+
+        const tagDiv = document.createElement("div")
+        tagDiv.className = "tag-div"
+        tagDiv.id = `tagDiv-${tag.id}`
+
+        const deleteBtn = document.createElement("button")
+        deleteBtn.className = "fa-solid fa-tag"
+        deleteBtn.id = `deleteTagBtn-${tag.id}`
+        deleteBtn.onclick = () => deleteTag(tag.id)
+
+        const tagName = document.createElement("p")
+        tagName.textContent = tag.title
+        tagName.id = `tagName-${tag.id}`
+
+        const redactBtn = document.createElement("button")
+        redactBtn.className = "fa-solid fa-pencil"
+        redactBtn.id = `redactTagBtn-${tag.id}`
+        redactBtn.onclick = () => redactTag(tag.id)
+
+        tagDiv.appendChild(deleteBtn)
+        tagDiv.appendChild(tagName)
+        tagDiv.appendChild(redactBtn)
+        createTag.appendChild(tagDiv)
+        document.getElementById("tagsList").appendChild(createTag)
+        document.getElementById(`tagDiv-${tag.id}`).addEventListener('mouseover', () => changeTagIcon(tag.id))
+        document.getElementById(`tagDiv-${tag.id}`).addEventListener('mouseleave', () => returnTagIcon(tag.id))
+    })
+} //відображення списку тегів
+
+function saveTags() {
+    const tag = {
+        title: document.getElementById("tagInput").value,
+        id: Date.now()}
+    tagsArray.push(tag)
+    localStorage.setItem("myTags", JSON.stringify(tagsArray))
+    document.getElementById("tagInput").value = ''
+    createTagsList()
+}//збереження тегу
+
+function changeTagIcon(id) {
+    document.getElementById(`deleteTagBtn-${id}`).classList.remove('fa-tag')
+    document.getElementById(`deleteTagBtn-${id}`).classList.add('fa-trash')
+}//зміна іконки біля тегу
+
+function returnTagIcon(id){
+    document.getElementById(`deleteTagBtn-${id}`).classList.remove('fa-trash')
+    document.getElementById(`deleteTagBtn-${id}`).classList.add('fa-tag')
+}//повернення іконки біля тегу
+
+function closeTags() {
+    manageTags()
+}//закрити меню тегів
+
+function deleteTag(id){
+    document.getElementById("tagsList").innerHTML = ''
+    const newTagsArray = []
+    tagsArray.forEach(tag =>{
+        if(tag.id !== id){
+            newTagsArray.push(tag)
+        }
+    })
+    localStorage.setItem("myTags", JSON.stringify(newTagsArray))
+    tagsArray = newTagsArray
+    createTagsList()
+}//видалення тегу
+
+function redactTag(id) {
+    tagsArray.forEach(tag => {
+        if(tag.id === id){
+            document.getElementById(`tagName-${id}`).outerHTML = `<input type="text" value=${tag.title} id="tagNameInput-${id}">`
+            document.getElementById(`redactTagBtn-${id}`).classList.remove("fa-pencil")
+            document.getElementById(`redactTagBtn-${id}`).classList.add("fa-check")
+            document.getElementById(`redactTagBtn-${id}`).onclick = saveRedactedTag
+            function saveRedactedTag() {
+                const newTagName = document.getElementById(`tagNameInput-${id}`).value
+                tag.title = newTagName
+                localStorage.setItem("myTags", JSON.stringify(tagsArray))
+                document.getElementById(`redactTagBtn-${id}`).classList.remove("fa-check")
+                document.getElementById(`redactTagBtn-${id}`).classList.add("fa-pencil")
+                document.getElementById(`tagNameInput-${id}`).outerHTML = `<p id="tagName-${id}">${tag.title}</p>`
+            }
+        }
+    })
+}//можливість редактування тегу
+
+function renderTagsToSidebar() {
+    tagsArray.forEach(tag => {
+        let icon = document.createElement("i")
+        icon.className = "fa-solid fa-filter"
+        let element = document.createElement("li")
+        element.className = "sidebar-el"
+        element.id = `element-${tag.id}`
+        element.onclick = () => showSection(`element-${tag.id}`)
+        element.appendChild(icon)
+        element.append(`${tag.title}`)
+        document.getElementById("sidebarList").appendChild(element)
+    })
+}//рендер тегів на панелі зліва
+
+function renderNoteFunctions(id){
+    const div = document.getElementById(`noteFunctions-${id}`)
+    const isHidden = getComputedStyle(div).display === "none"
+    if(isHidden){
+        div.style.display = "block"
+    }else {
+        div.style.display = "none"
+    }
+}//виведення функцій в трьох крапкаї
+
+function renderNoteTags(noteId) {
+    let noteTagsHtml = ``
+    const thisNote = notesArray.find(n => n.id === noteId)
+    thisNote.tags.forEach(tag => {
+        noteTagsHtml +=`<p>${tag}</p>` 
+    })
+    return noteTagsHtml
+}//рендер тегів нотатки
+
+function renderFilter(id) {
+    document.getElementById("notes").innerHTML = ``
+    const thisFilter = tagsArray.find(t => t.id === id)
+    const filteredNotes = notesArray.filter(note => {
+        return note.tags.includes(thisFilter.title)
+    })
+    let filterHtml = ``
+    if(filteredNotes.length > 0){
+    filteredNotes.forEach(note => {
+        filterHtml += `<article onmouseenter="renderOptions(${note.id})" onmouseleave="discard(${note.id})" id="note-${note.id}">
+                <h2>${note.title}</h2>
+                <p>${note.note}</p>
+                <div class="note-tags ${note.tags.length === 0 ? "hidden" : ''}" id="noteTags-${note.id}">${renderNoteTags(note.id)}</div>
+                <div class="options" id="options-${note.id}"></div>  
+            </article>`
+    })
+    }else{
+        filterHtml = `<div class="no-notes-with-filter">
+            <i class="fa-regular fa-face-sad-tear"></i>
+            <p>There are no notes with this tag.</p>
+        </div>
+        `
+    }
+    document.getElementById("notes").innerHTML = filterHtml
+}//застосування тегу як фільтра та виведення нотаток
+
+function addTagToNoteMenu(id){
+    renderNoteFunctions(id)
+    const div = document.getElementById(`chooseTagMenu-${id}`)
+    const isHidden = getComputedStyle(div).display === "none"
+    if(isHidden){
+        div.style.display = "block"
+    }else {
+        div.style.display = "none"
+    }
+    let tagsMenuHtml = ``
+    tagsArray.forEach(tag => {
+        tagsMenuHtml += `
+        <div class="available-tag">
+            <input type="checkbox" value="${tag.title}" id="markTag-${tag.id}-${id}" onchange="addTagToNote(${id}, event, ${tag.id})" ${notesArray.find(note => note.id === id)?.tags.includes(tag.title) ? 'checked' : ''}>
+            <p>${tag.title}</p>
+        </div>`
+    })
+    document.getElementById(`chooseTag-${id}`).innerHTML = tagsMenuHtml
+}//меню додавання тегів до нотатки
+
+function addTagToNote(noteId, event, tagId){
+    const isChecked = event.target.checked
+    const note = notesArray.find(note => note.id === noteId)
+    const tag = tagsArray.find(tag => tag.id === tagId)
+
+    if (!note || !tag) return
+    if(isChecked){
+        if(!note.tags.includes(tag.title)){
+            note.tags.push(tag.title)
+        }
+    }else {
+        note.tags = note.tags.filter(t => t != tag.title)
+    }
+    localStorage.setItem("myNotes", JSON.stringify(notesArray))
+    updateNoteTags(noteId)
+}//функція додавання тегу
+
+function updateNoteTags(noteId){
+    const thisNote = notesArray.find(n => n.id === noteId)
+    let newTagsHtml = ``
+    thisNote.tags.forEach(tag => {
+        newTagsHtml += `<p>${tag}</p>`
+    })
+    document.getElementById(`noteTags-${noteId}`).innerHTML = newTagsHtml
+}//оновлення тегів нотатки
+
