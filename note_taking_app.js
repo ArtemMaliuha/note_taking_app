@@ -1,4 +1,4 @@
-const notesArray = localStorage.getItem("myNotes") ? JSON.parse(localStorage.getItem("myNotes")) : []
+let notesArray = localStorage.getItem("myNotes") ? JSON.parse(localStorage.getItem("myNotes")) : []
 const notes = document.getElementById("notes")
 let tagsArray = localStorage.getItem("myTags") ? JSON.parse(localStorage.getItem("myTags")) : []
 
@@ -100,6 +100,7 @@ function renderOptions(id) {
                     <span>Change text color</span>
                     <input type="color" id="createTextColor-${id}" style="display: none" onchange="changeTextColor(${id})">
                 </label>
+                <button onclick=deleteForeverMenu(${id})>Delete forever</button>
             </div>
             <div class="choose-tag-menu" id="chooseTagMenu-${id}">
                 <h3>Choose tag to add</h3>
@@ -471,3 +472,30 @@ function updateNoteTags(noteId){
     document.getElementById(`noteTags-${noteId}`).innerHTML = newTagsHtml
 }//оновлення тегів нотатки
 
+function deleteForeverMenu(noteId){
+    const div = document.getElementById("deleteForeverMenu")
+    const overlay = document.getElementById("overlay2")
+    const isHidden = getComputedStyle(div).display === "none"
+    if(isHidden){
+        div.innerHTML = `
+        <p>Delete note forever?</p>
+        <div class="delete-forever-btn">
+            <button onclick="deleteForeverMenu()">Cancel</button>
+            <button id="deleteNoteForeverBtn" onclick="deleteNoteForever(${noteId})">Delete</button>
+        </div>
+        `
+        overlay.style.display = "block"
+        div.style.display = "block"
+    }else {
+        div.style.display = "none"
+        overlay.style.display = "none"
+    }
+}
+
+function deleteNoteForever(noteId){
+    notesArray = notesArray.filter(n => n.id != noteId)
+    localStorage.setItem("myNotes", JSON.stringify(notesArray))
+    renderNotes()
+    deleteForeverMenu()
+    return notesArray = notesArray
+}
