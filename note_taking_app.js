@@ -65,10 +65,11 @@ function close() {
 function renderNotes() {
     const inputBar = `<input type="text"  id="title-input" class="title-input" placeholder="Enter note title" onclick="expandInput()">` 
     document.getElementById("inputFields").innerHTML = inputBar
-
+    let rendered = 0
     let notesHtml = ``
     notesArray.forEach(note => {
         if (note.isArchived === false && note.isDeleted === false) {
+            rendered += 1
             const safeTitle = escapeHTML(note.title)
             const safeNote = escapeHTML(note.note)
             notesHtml += `
@@ -81,6 +82,12 @@ function renderNotes() {
         }
     })
     notes.innerHTML = notesHtml
+    if(rendered){
+        new Masonry(notes, {
+        itemSelector: 'article',
+        gutter: 10,
+        fitWidth: true
+    })}
 } //рендер нотаток
 
 function renderOptions(id) {
@@ -202,8 +209,14 @@ function renderArchive() {
             <i class="fa-solid fa-box-archive"></i>
             <p>There are no archived notes</p>
         </div>`
-    }
-    notes.innerHTML = notesHtml
+        notes.innerHTML = notesHtml
+    }else{
+        notes.innerHTML = notesHtml
+    new Masonry(notes, {
+        itemSelector: 'article',
+        gutter: 10,
+        fitWidth: true
+    })}
 } // рендер архіву
 
 function renderDeleted() {
@@ -229,8 +242,14 @@ function renderDeleted() {
             <i class="fa-solid fa-trash"></i>
             <p>There are no deleted notes</p>
         </div>`
-    }
-    notes.innerHTML = notesHtml
+        notes.innerHTML = notesHtml
+    }else{
+        notes.innerHTML = notesHtml
+        new Masonry(notes, {
+            itemSelector: 'article',
+            gutter: 10,
+            fitWidth: true
+        })}
 }//рендер видалених
 
 function escapeHTML(str) {
