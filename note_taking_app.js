@@ -230,10 +230,10 @@ function renderDeleted() {
             const safeNote = escapeHTML(note.note)
             deletedNotes.push(note)
             notesHtml += `
-            <article onmouseenter="renderOptions(${note.id})" onmouseleave="discard(${note.id})" id="note-${note.id}">
+            <article onmouseenter="renderDeletedNoteOptions(${note.id})" onmouseleave="discardDeletedNoteOptions(${note.id})" id="note-${note.id}">
                 <h2>${safeTitle}</h2>
                 <p>${safeNote}</p>
-                <div class="options" id="options-${note.id}"></div>  
+                <div class="options" id="deletedNoteOptions-${note.id}"></div>  
             </article>`
         }
     })
@@ -517,4 +517,17 @@ function deleteNoteForever(noteId){
     renderNotes()
     deleteForeverMenu()
     return notesArray = notesArray
+}
+
+function renderDeletedNoteOptions(id){
+    optionsHtml = `
+        <i class="fa-solid fa-trash-can-arrow-up" id="restoreBtn-${id}" onclick="deleteNote(${id})"></i>
+        <i class="fa-solid fa-trash" id="deleteForeverBtn-${id}" onclick="deleteForeverMenu(${id})""></i>
+        `
+    document.getElementById(`deletedNoteOptions-${id}`).innerHTML = optionsHtml
+}
+
+function discardDeletedNoteOptions(id){
+    document.getElementById(`restoreBtn-${id}`).remove()
+    document.getElementById(`deleteForeverBtn-${id}`).remove()
 }
