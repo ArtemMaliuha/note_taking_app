@@ -33,7 +33,7 @@ function expandInput() {
         document.getElementById("buttons").appendChild(saveBtn)
         document.getElementById("buttons").appendChild(closeBtn)
     }
-} //розширення інпута 
+} // Expand input (Розширення інпута)
 
 function save() {
     const title = document.getElementById("title-input").value
@@ -54,13 +54,13 @@ function save() {
     renderNotes()
     document.getElementById("title-input").value = ''
     return notesArray
-} //збереження нотаток
+} // Save notes (Збереження нотаток)
 
 function close() {
     document.getElementById("title-input").classList.remove("expanded")
     document.getElementById("noteInput").remove()
     document.getElementById("buttons").remove()
-} //закрити розширене поле вводу
+} // Close expanded input area (Закрити розширене поле вводу)
 
 function renderNotes() {
     const inputBar = `<input type="text"  id="title-input" class="title-input" placeholder="Enter note title" onclick="expandInput()">` 
@@ -88,7 +88,7 @@ function renderNotes() {
         gutter: 10,
         fitWidth: true
     })}
-} //рендер нотаток
+} // Render notes (Рендер нотаток)
 
 function renderOptions(id) {
     optionsHtml = `
@@ -99,7 +99,7 @@ function renderOptions(id) {
         <i class="fa-solid fa-box-archive" id="archiveBtn-${id}" onclick="archiveNote(${id})"></i>
         <i class="fa-solid fa-trash" id="deleteBtn-${id}" onclick="deleteNote(${id})"></i>
         <div class="note-menu-wrapper">
-            <i class="fa-solid fa-ellipsis-vertical" id="optionsMenu-${id}" onclick="renderNoteFunctions(${id})"\></i>
+            <i class="fa-solid fa-ellipsis-vertical" id="optionsMenu-${id}" onclick="renderNoteFunctions(${id})"></i>
             <div class="note-functions" id="noteFunctions-${id}">
                 <button onclick=addTagToNoteMenu(${id})>Add tag to this note</button>
                 <button onclick=deleteNote(${id})>Delete</button>
@@ -120,14 +120,14 @@ function renderOptions(id) {
         </div>
         `
     document.getElementById(`options-${id}`).innerHTML = optionsHtml
-} //рендер опцій для нотаток
+} // Render note options (Рендер опцій для нотаток)
 
 function discard(id) {
     document.getElementById(`archiveBtn-${id}`).remove()
     document.getElementById(`deleteBtn-${id}`).remove()
     document.getElementById(`paletteBtn-${id}`).remove()
     document.getElementById(`optionsMenu-${id}`).remove()
-} //закриття опцій для нотаток
+} // Hide note options (Закриття опцій для нотаток)
 
 function deleteNote(id) {
     const newNotesArray = []
@@ -147,7 +147,7 @@ function deleteNote(id) {
     }else {
         renderDeleted()
     }
-} //видалення нотатки
+} // Soft delete/restore note (Видалення/відновлення нотатки)
 
 function archiveNote(id) {
     const newNotesArray = []
@@ -167,7 +167,7 @@ function archiveNote(id) {
     }else {
         renderArchive()
     }
-} //архівування нотатки
+} // Archive/unarchive note (Архівування/розархівування нотатки)
 
 function showSection(id){
     document.querySelectorAll(".sidebar-el").forEach(item =>{
@@ -184,7 +184,7 @@ function showSection(id){
         const tagId = parseInt(id.replace("element-", ""))
         renderFilter(tagId)
     }
-} //відображення потрібного розділу
+} // Show selected section (Відображення потрібного розділу)
 
 function renderArchive() {
     document.getElementById("inputFields").innerHTML = ''
@@ -217,7 +217,7 @@ function renderArchive() {
         gutter: 10,
         fitWidth: true
     })}
-} // рендер архіву
+} // Render archive (Рендер архіву)
 
 function renderDeleted() {
     document.getElementById("inputFields").innerHTML = ''
@@ -250,27 +250,27 @@ function renderDeleted() {
             gutter: 10,
             fitWidth: true
         })}
-}//рендер видалених
+}// Render deleted list (Рендер видалених)
 
 function escapeHTML(str) {
     const div = document.createElement("div")
     div.appendChild(document.createTextNode(str))
     return div.innerHTML
-}//уникнення можливості додавати html елементи через input
+}// Prevent HTML injection from inputs (Уникнення можливості додавати HTML через input)
 
 function changeColor(id) {
     document.getElementById(`note-${id}`).style.backgroundColor = document.getElementById(`create-color-${id}`).value
     const thisNote = notesArray.find(n => n.id === id)
     thisNote.backgroundColor = document.getElementById(`create-color-${id}`).value
     localStorage.setItem("myNotes", JSON.stringify(notesArray))
-} //зміна кольору нотатки
+} // Change note background color (Зміна кольору нотатки)
 
 function changeTextColor(id){
     document.getElementById(`note-${id}`).style.color = document.getElementById(`createTextColor-${id}`).value
     const thisNote = notesArray.find(n => n.id === id)
     thisNote.textColor = document.getElementById(`create-color-${id}`).value
     localStorage.setItem("myNotes", JSON.stringify(notesArray))
-}
+} // Change note text color (Зміна кольору тексту нотатки)
 
 function manageTags() {
     const div = document.getElementById("manageTagsDiv")
@@ -295,7 +295,7 @@ function manageTags() {
         overlay.style.display = "none"
     }
     createTagsList()
-}//меню керування тегами
+}// Tags management modal (Меню керування тегами)
 
 function createTagsList() {
     document.getElementById("tagsList").innerHTML = ''
@@ -328,7 +328,7 @@ function createTagsList() {
         document.getElementById(`tagDiv-${tag.id}`).addEventListener('mouseover', () => changeTagIcon(tag.id))
         document.getElementById(`tagDiv-${tag.id}`).addEventListener('mouseleave', () => returnTagIcon(tag.id))
     })
-} //відображення списку тегів
+} // Render tags list in modal (Відображення списку тегів)
 
 function saveTags() {
     const tag = {
@@ -338,21 +338,21 @@ function saveTags() {
     localStorage.setItem("myTags", JSON.stringify(tagsArray))
     document.getElementById("tagInput").value = ''
     createTagsList()
-}//збереження тегу
+}// Save a new tag (Збереження тегу)
 
 function changeTagIcon(id) {
     document.getElementById(`deleteTagBtn-${id}`).classList.remove('fa-tag')
     document.getElementById(`deleteTagBtn-${id}`).classList.add('fa-trash')
-}//зміна іконки біля тегу
+}// Swap icon to trash on hover (Зміна іконки біля тегу)
 
 function returnTagIcon(id){
     document.getElementById(`deleteTagBtn-${id}`).classList.remove('fa-trash')
     document.getElementById(`deleteTagBtn-${id}`).classList.add('fa-tag')
-}//повернення іконки біля тегу
+}// Restore tag icon on mouse leave (Повернення іконки біля тегу)
 
 function closeTags() {
     manageTags()
-}//закрити меню тегів
+}// Close tags modal (Закрити меню тегів)
 
 function deleteTag(id){
     document.getElementById("tagsList").innerHTML = ''
@@ -365,7 +365,7 @@ function deleteTag(id){
     localStorage.setItem("myTags", JSON.stringify(newTagsArray))
     tagsArray = newTagsArray
     createTagsList()
-}//видалення тегу
+}// Delete tag (Видалення тегу)
 
 function redactTag(id) {
     tagsArray.forEach(tag => {
@@ -384,7 +384,7 @@ function redactTag(id) {
             }
         }
     })
-}//можливість редактування тегу
+}// Edit tag title inline (Можливість редагування тегу)
 
 function renderTagsToSidebar() {
     tagsArray.forEach(tag => {
@@ -398,7 +398,7 @@ function renderTagsToSidebar() {
         element.append(`${tag.title}`)
         document.getElementById("sidebarList").appendChild(element)
     })
-}//рендер тегів на панелі зліва
+}// Render tags in sidebar (Рендер тегів на панелі зліва)
 
 function renderNoteFunctions(id){
     const div = document.getElementById(`noteFunctions-${id}`)
@@ -408,7 +408,7 @@ function renderNoteFunctions(id){
     }else {
         div.style.display = "none"
     }
-}//виведення функцій в трьох крапкаї
+}// Toggle note actions popup (Виведення функцій у меню з трьох крапок)
 
 function renderNoteTags(noteId) {
     let noteTagsHtml = ``
@@ -417,7 +417,7 @@ function renderNoteTags(noteId) {
         noteTagsHtml +=`<p>${tag}</p>` 
     })
     return noteTagsHtml
-}//рендер тегів нотатки
+}// Render tags on a note card (Рендер тегів нотатки)
 
 function renderFilter(id) {
     document.getElementById("notes").innerHTML = ``
@@ -443,7 +443,7 @@ function renderFilter(id) {
         `
     }
     document.getElementById("notes").innerHTML = filterHtml
-}//застосування тегу як фільтра та виведення нотаток
+}// Apply tag filter and render (Застосування тегу як фільтра та виведення нотаток)
 
 function addTagToNoteMenu(id){
     renderNoteFunctions(id)
@@ -463,7 +463,7 @@ function addTagToNoteMenu(id){
         </div>`
     })
     document.getElementById(`chooseTag-${id}`).innerHTML = tagsMenuHtml
-}//меню додавання тегів до нотатки
+}// Open tag chooser for a note (Меню додавання тегів до нотатки)
 
 function addTagToNote(noteId, event, tagId){
     const isChecked = event.target.checked
@@ -480,7 +480,7 @@ function addTagToNote(noteId, event, tagId){
     }
     localStorage.setItem("myNotes", JSON.stringify(notesArray))
     updateNoteTags(noteId)
-}//функція додавання тегу
+}// Add/remove tag on note (Функція додавання/видалення тегу)
 
 function updateNoteTags(noteId){
     const thisNote = notesArray.find(n => n.id === noteId)
@@ -489,7 +489,7 @@ function updateNoteTags(noteId){
         newTagsHtml += `<p>${tag}</p>`
     })
     document.getElementById(`noteTags-${noteId}`).innerHTML = newTagsHtml
-}//оновлення тегів нотатки
+}// Refresh tag chips on the card (Оновлення тегів нотатки)
 
 function deleteForeverMenu(noteId){
     const div = document.getElementById("deleteForeverMenu")
@@ -509,7 +509,7 @@ function deleteForeverMenu(noteId){
         div.style.display = "none"
         overlay.style.display = "none"
     }
-}
+} // Confirm permanent deletion modal (Меню видалення нотатки назавжди)
 
 function deleteNoteForever(noteId){
     notesArray = notesArray.filter(n => n.id != noteId)
@@ -517,17 +517,17 @@ function deleteNoteForever(noteId){
     renderNotes()
     deleteForeverMenu()
     return notesArray = notesArray
-}
+}// Permanently delete a note (Функція видалення нотатки назавжди)
 
 function renderDeletedNoteOptions(id){
     optionsHtml = `
         <i class="fa-solid fa-trash-can-arrow-up" id="restoreBtn-${id}" onclick="deleteNote(${id})"></i>
-        <i class="fa-solid fa-trash" id="deleteForeverBtn-${id}" onclick="deleteForeverMenu(${id})""></i>
+        <i class="fa-solid fa-trash" id="deleteForeverBtn-${id}" onclick="deleteForeverMenu(${id})"></i>
         `
     document.getElementById(`deletedNoteOptions-${id}`).innerHTML = optionsHtml
-}
+}// Render options for deleted notes (Виведення функцій для видалених нотаток)
 
 function discardDeletedNoteOptions(id){
     document.getElementById(`restoreBtn-${id}`).remove()
     document.getElementById(`deleteForeverBtn-${id}`).remove()
-}
+}// Hide options for deleted notes (Приховування функцій для видалених нотаток)
