@@ -197,7 +197,7 @@ function renderArchive() {
             const safeTitle = escapeHTML(note.title)
             const safeNote = escapeHTML(note.note)
             notesHtml += `
-            <article onmouseenter="renderOptions(${note.id})" onmouseleave="discard(${note.id})" id="note-${note.id}">
+            <article onmouseenter="renderOptions(${note.id})" onmouseleave="discard(${note.id})" id="note-${note.id}" style="background-color: ${note.backgroundColor}; color: ${note.textColor};">
                 <h2>${safeTitle}</h2>
                 <p>${safeNote}</p>
                 <div class="options" id="options-${note.id}"></div>  
@@ -230,7 +230,7 @@ function renderDeleted() {
             const safeNote = escapeHTML(note.note)
             deletedNotes.push(note)
             notesHtml += `
-            <article onmouseenter="renderDeletedNoteOptions(${note.id})" onmouseleave="discardDeletedNoteOptions(${note.id})" id="note-${note.id}">
+            <article onmouseenter="renderDeletedNoteOptions(${note.id})" onmouseleave="discardDeletedNoteOptions(${note.id})" id="note-${note.id}" style="background-color: ${note.backgroundColor}; color: ${note.textColor};">
                 <h2>${safeTitle}</h2>
                 <p>${safeNote}</p>
                 <div class="options" id="deletedNoteOptions-${note.id}"></div>  
@@ -428,7 +428,7 @@ function renderFilter(id) {
     let filterHtml = ``
     if(filteredNotes.length > 0){
     filteredNotes.forEach(note => {
-        filterHtml += `<article onmouseenter="renderOptions(${note.id})" onmouseleave="discard(${note.id})" id="note-${note.id}">
+        filterHtml += `<article onmouseenter="renderOptions(${note.id})" onmouseleave="discard(${note.id})" id="note-${note.id}" style="background-color: ${note.backgroundColor}; color: ${note.textColor};">
                 <h2>${note.title}</h2>
                 <p>${note.note}</p>
                 <div class="note-tags ${note.tags.length === 0 ? "hidden" : ''}" id="noteTags-${note.id}">${renderNoteTags(note.id)}</div>
