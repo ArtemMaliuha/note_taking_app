@@ -197,10 +197,10 @@ function renderArchive() {
             const safeTitle = escapeHTML(note.title)
             const safeNote = escapeHTML(note.note)
             notesHtml += `
-            <article onmouseenter="renderOptions(${note.id})" onmouseleave="discard(${note.id})" id="note-${note.id}" style="background-color: ${note.backgroundColor}; color: ${note.textColor};">
+            <article onmouseenter="renderArchivedNoteOptions(${note.id})" onmouseleave="discardArchivedNoteOptions(${note.id})" id="note-${note.id}" style="background-color: ${note.backgroundColor}; color: ${note.textColor};">
                 <h2>${safeTitle}</h2>
                 <p>${safeNote}</p>
-                <div class="options" id="options-${note.id}"></div>  
+                <div class="options" id="archivedNoteOptions-${note.id}"></div>  
             </article>`
         }
     })
@@ -531,3 +531,42 @@ function discardDeletedNoteOptions(id){
     document.getElementById(`restoreBtn-${id}`).remove()
     document.getElementById(`deleteForeverBtn-${id}`).remove()
 }// Hide options for deleted notes (Приховування функцій для видалених нотаток)
+
+function renderArchivedNoteOptions(id){
+    optionsHtml = `
+        <label for="create-color-${id}">
+            <i class="fa-solid fa-palette" id="paletteBtn-${id}"></i>
+            <input type="color" id="create-color-${id}" style="display: none" onchange="changeColor(${id})">
+        </label>
+        <i class="fa-solid fa-arrow-up-from-bracket" id="unarchiveBtn-${id}" onclick="archiveNote(${id})"></i>
+        <i class="fa-solid fa-trash" id="deleteBtn-${id}" onclick="deleteNote(${id})"></i>
+        <div class="note-menu-wrapper">
+            <i class="fa-solid fa-ellipsis-vertical" id="optionsMenu-${id}" onclick="renderNoteFunctions(${id})"></i>
+            <div class="note-functions" id="noteFunctions-${id}">
+                <button onclick=addTagToNoteMenu(${id})>Add tag to this note</button>
+                <button onclick=deleteNote(${id})>Delete</button>
+                <label for="createTextColor-${id}">
+                    <span>Change text color</span>
+                    <input type="color" id="createTextColor-${id}" style="display: none" onchange="changeTextColor(${id})">
+                </label>
+                <button onclick=deleteForeverMenu(${id})>Delete forever</button>
+            </div>
+            <div class="choose-tag-menu" id="chooseTagMenu-${id}">
+                <h3>Choose tag to add</h3>
+                <div class="tag-search">
+                    <input type="text" placeholder="Type tag name" id="findTag-${id}">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <div class="choose-tag" id="chooseTag-${id}"></div>
+            </div>
+        </div>
+        `
+    document.getElementById(`archivedNoteOptions-${id}`).innerHTML = optionsHtml
+}// Render options for archived notes (Виведення функцій для заархівованих нотаток)
+
+function discardArchivedNoteOptions(id){
+    document.getElementById(`unarchiveBtn-${id}`).remove()
+    document.getElementById(`deleteBtn-${id}`).remove()
+    document.getElementById(`paletteBtn-${id}`).remove()
+    document.getElementById(`optionsMenu-${id}`).remove()
+}// Hide options for archived notes (Приховування функцій для заархівованих нотаток)
