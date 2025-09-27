@@ -93,13 +93,13 @@ function renderNotes() {
 function renderOptions(id) {
     optionsHtml = `
         <label for="create-color-${id}">
-            <i class="fa-solid fa-palette" id="paletteBtn-${id}"></i>
+            <i class="fa-solid fa-palette" id="paletteBtn-${id}"><span class="tooltip-text">Change note color</span></i>
             <input type="color" id="create-color-${id}" style="display: none" onchange="changeColor(${id})">
         </label>
-        <i class="fa-solid fa-box-archive" id="archiveBtn-${id}" onclick="archiveNote(${id})"></i>
-        <i class="fa-solid fa-trash" id="deleteBtn-${id}" onclick="deleteNote(${id})"></i>
+        <i class="fa-solid fa-box-archive" id="archiveBtn-${id}" onclick="archiveNote(${id})"><span class="tooltip-text">Archive note</span></i>
+        <i class="fa-solid fa-trash" id="deleteBtn-${id}" onclick="deleteNote(${id})"><span class="tooltip-text">Delete note</span></i>
         <div class="note-menu-wrapper">
-            <i class="fa-solid fa-ellipsis-vertical" id="optionsMenu-${id}" onclick="renderNoteFunctions(${id})"></i>
+            <i class="fa-solid fa-ellipsis-vertical" id="optionsMenu-${id}" onclick="renderNoteFunctions(${id})"><span class="tooltip-text">More options</span></i>
             <div class="note-functions" id="noteFunctions-${id}">
                 <button onclick=addTagToNoteMenu(${id})>Add tag to this note</button>
                 <button onclick=deleteNote(${id})>Delete</button>
@@ -281,7 +281,7 @@ function manageTags() {
         <p>Manage Tags</p>
         <div class="tags-input">
             <input type="text" id="tagInput">
-            <button onclick= saveTags()><i class="fa-solid fa-check"></i></button>
+            <button onclick= saveTags()><i class="fa-solid fa-check"><span class="tooltip-text">Save</span></i></button>
         </div>
         <ul id="tagsList">
         </ul>  
@@ -521,8 +521,8 @@ function deleteNoteForever(noteId){
 
 function renderDeletedNoteOptions(id){
     optionsHtml = `
-        <i class="fa-solid fa-trash-can-arrow-up" id="restoreBtn-${id}" onclick="deleteNote(${id})"></i>
-        <i class="fa-solid fa-trash" id="deleteForeverBtn-${id}" onclick="deleteForeverMenu(${id})"></i>
+        <i class="fa-solid fa-trash-can-arrow-up" id="restoreBtn-${id}" onclick="deleteNote(${id})">Restore note</i>
+        <i class="fa-solid fa-trash" id="deleteForeverBtn-${id}" onclick="deleteForeverMenu(${id})">Delete forever</i>
         `
     document.getElementById(`deletedNoteOptions-${id}`).innerHTML = optionsHtml
 }// Render options for deleted notes (Виведення функцій для видалених нотаток)
@@ -535,13 +535,13 @@ function discardDeletedNoteOptions(id){
 function renderArchivedNoteOptions(id){
     optionsHtml = `
         <label for="create-color-${id}">
-            <i class="fa-solid fa-palette" id="paletteBtn-${id}"></i>
+            <i class="fa-solid fa-palette" id="paletteBtn-${id}"><span class="tooltip-text">Change note color</span></i>
             <input type="color" id="create-color-${id}" style="display: none" onchange="changeColor(${id})">
         </label>
-        <i class="fa-solid fa-arrow-up-from-bracket" id="unarchiveBtn-${id}" onclick="archiveNote(${id})"></i>
-        <i class="fa-solid fa-trash" id="deleteBtn-${id}" onclick="deleteNote(${id})"></i>
+        <i class="fa-solid fa-arrow-up-from-bracket" id="unarchiveBtn-${id}" onclick="archiveNote(${id})"><span class="tooltip-text">Unarcive note</span></i>
+        <i class="fa-solid fa-trash" id="deleteBtn-${id}" onclick="deleteNote(${id})"><span class="tooltip-text">Delete note</span></i>
         <div class="note-menu-wrapper">
-            <i class="fa-solid fa-ellipsis-vertical" id="optionsMenu-${id}" onclick="renderNoteFunctions(${id})"></i>
+            <i class="fa-solid fa-ellipsis-vertical" id="optionsMenu-${id}" onclick="renderNoteFunctions(${id})"><span class="tooltip-text">More options</span></i>
             <div class="note-functions" id="noteFunctions-${id}">
                 <button onclick=addTagToNoteMenu(${id})>Add tag to this note</button>
                 <button onclick=deleteNote(${id})>Delete</button>
