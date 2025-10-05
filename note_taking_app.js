@@ -111,8 +111,8 @@ function renderOptions(id) {
             </div>
             <div class="choose-tag-menu" id="chooseTagMenu-${id}">
                 <h3>Choose tag to add</h3>
-                <div class="tag-search">
-                    <input type="text" placeholder="Type tag name" id="findTag-${id}">
+                <div class="tag-search" id="addTagSearch">
+                    <input type="text" placeholder="Type tag name" id="findTag-${id}" oninput=searchTag(${id})>
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </div>
                 <div class="choose-tag" id="chooseTag-${id}"></div>
@@ -280,7 +280,7 @@ function manageTags() {
         div.innerHTML = `
         <p>Manage Tags</p>
         <div class="tags-input">
-            <input type="text" id="tagInput">
+            <input type="text" id="tagSearchInput">
             <button onclick= saveTags()><i class="fa-solid fa-check"><span class="tooltip-text">Save</span></i></button>
         </div>
         <ul id="tagsList">
@@ -570,3 +570,59 @@ function discardArchivedNoteOptions(id){
     document.getElementById(`paletteBtn-${id}`).remove()
     document.getElementById(`optionsMenu-${id}`).remove()
 }// Hide options for archived notes (Приховування функцій для заархівованих нотаток)
+
+function searchTag(id){
+    tagsMenuHtml = ""
+    const createTagBtn = document.createElement("button")
+    createTagBtn.id = `createTagBtn-${id}`
+    createTagBtn.className = "create-tag-btn"
+    createTagBtn.onclick = () => createTagInNoteMenu(id)
+    document.getElementById(`chooseTag-${id}`).innerHTML = ""
+    const searchTagVal = document.getElementById(`findTag-${id}`).value
+    tagsArray.forEach(tag => {
+        if(tag.title.includes(searchTagVal)){
+            tagsMenuHtml += `
+                <div class="available-tag">
+                    <input type="checkbox" value="${tag.title}" id="markTag-${tag.id}-${id}" onchange="addTagToNote(${id}, event, ${tag.id})" ${notesArray.find(note => note.id === id)?.tags.includes(tag.title) ? 'checked' : ''}>
+                    <p>${tag.title}</p>
+                </div>`
+        }
+    })
+    if(tagsMenuHtml === ""){
+        document.getElementById(`chooseTag-${id}`).innerHTML = ""
+    }else{
+        document.getElementById(`chooseTag-${id}`).innerHTML = tagsMenuHtml
+    }
+    if(searchTagVal !== "" && !document.getElementById(`createTagBtn-${id}`)){
+        createTagBtn.textContent = `Add label "${searchTagVal}"`
+        document.getElementById(`chooseTagMenu-${id}`).appendChild(createTagBtn)
+    }else if(searchTagVal !== "" && document.getElementById(`createTagBtn-${id}`)){
+        document.getElementById(`createTagBtn-${id}`).textContent = `Add label "${searchTagVal}"`
+    }else if(searchTagVal === ""){
+        document.getElementById(`createTagBtn-${id}`).remove()
+    }
+}
+
+function createTagInNoteMenu(id){
+    const tag = {
+        title: document.getElementById(`findTag-${id}`).value,
+        id: Date.now()}
+    tagsArray.push(tag)
+    localStorage.setItem("myTags", JSON.stringify(tagsArray))
+    document.getElementById(`findTag-${id}`).value = ""
+    let icon = document.createElement("i")
+    icon.className = "fa-solid fa-filter"
+    let element = document.createElement("li")
+    element.className = "sidebar-el"
+    element.id = `element-${tag.id}`
+    element.onclick = () => showSection(`element-${tag.id}`)
+    element.appendChild(icon)
+    element.append(`${tag.title}`)
+    document.getElementById("sidebarList").appendChild(element)
+    const thisNote = notesArray.find(n => n.id === id) 
+    thisNote.tags.push(tag.title)
+    localStorage.setItem("myNotes", JSON.stringify(notesArray))
+    renderNoteTags(id)
+    addTagToNoteMenu(id)
+    renderNotes()
+}

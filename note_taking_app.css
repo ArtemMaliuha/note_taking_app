@@ -91,14 +91,6 @@ ul{
     outline: none;
 }
 
-.expanded{
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    border-bottom: none;
-    border: 1px solid #e0e0e0; 
-    border-bottom: none;
-}
-
 #noteInput{
     width: 80%;
     max-width: 600px;
@@ -482,4 +474,20 @@ i .tooltip-text {
 i:hover .tooltip-text {
   visibility: visible;
   opacity: 1;
+}
+
+.expanded{
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
+    border: 1px solid #e0e0e0; 
+    border-bottom: none;
+}
+
+.create-tag-btn{
+    width: 160px;
+    height: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
