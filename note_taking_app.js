@@ -332,12 +332,13 @@ function createTagsList() {
 
 function saveTags() {
     const tag = {
-        title: document.getElementById("tagInput").value,
+        title: document.getElementById("tagSearchInput").value,
         id: Date.now()}
     tagsArray.push(tag)
     localStorage.setItem("myTags", JSON.stringify(tagsArray))
-    document.getElementById("tagInput").value = ''
+    document.getElementById("tagSearchInput").value = ''
     createTagsList()
+    renderTagsToSidebar()
 }// Save a new tag (Збереження тегу)
 
 function changeTagIcon(id) {
@@ -364,6 +365,7 @@ function deleteTag(id){
     })
     localStorage.setItem("myTags", JSON.stringify(newTagsArray))
     tagsArray = newTagsArray
+    document.getElementById(`element-${id}`).remove()
     createTagsList()
 }// Delete tag (Видалення тегу)
 
@@ -388,15 +390,28 @@ function redactTag(id) {
 
 function renderTagsToSidebar() {
     tagsArray.forEach(tag => {
-        let icon = document.createElement("i")
-        icon.className = "fa-solid fa-filter"
-        let element = document.createElement("li")
-        element.className = "sidebar-el"
-        element.id = `element-${tag.id}`
-        element.onclick = () => showSection(`element-${tag.id}`)
-        element.appendChild(icon)
-        element.append(`${tag.title}`)
-        document.getElementById("sidebarList").appendChild(element)
+        if(document.getElementById(`element-${tag.id}`)){
+            document.getElementById(`element-${tag.id}`).remove()
+            let icon = document.createElement("i")
+            icon.className = "fa-solid fa-filter"
+            let element = document.createElement("li")
+            element.className = "sidebar-el"
+            element.id = `element-${tag.id}`
+            element.onclick = () => showSection(`element-${tag.id}`)
+            element.appendChild(icon)
+            element.append(`${tag.title}`)
+            document.getElementById("sidebarList").appendChild(element)
+        }else{
+            let icon = document.createElement("i")
+            icon.className = "fa-solid fa-filter"
+            let element = document.createElement("li")
+            element.className = "sidebar-el"
+            element.id = `element-${tag.id}`
+            element.onclick = () => showSection(`element-${tag.id}`)
+            element.appendChild(icon)
+            element.append(`${tag.title}`)
+            document.getElementById("sidebarList").appendChild(element)
+        }
     })
 }// Render tags in sidebar (Рендер тегів на панелі зліва)
 
@@ -413,9 +428,15 @@ function renderNoteFunctions(id){
 function renderNoteTags(noteId) {
     let noteTagsHtml = ``
     const thisNote = notesArray.find(n => n.id === noteId)
-    thisNote.tags.forEach(tag => {
-        noteTagsHtml +=`<p>${tag}</p>` 
+    thisNote.tags = thisNote.tags.filter(tagTitle => {
+        const tagExists = tagsArray.some(t => t.title === tagTitle)
+        if(tagExists){
+            noteTagsHtml +=`<p>${tagTitle}</p>` 
+            return true
+        }
+        return false
     })
+    localStorage.setItem("myNotes", JSON.stringify(notesArray))
     return noteTagsHtml
 }// Render tags on a note card (Рендер тегів нотатки)
 
@@ -601,7 +622,7 @@ function searchTag(id){
     }else if(searchTagVal === ""){
         document.getElementById(`createTagBtn-${id}`).remove()
     }
-}
+}// Search and show tag creation option (Пошук і показ кнопки створення тегу)
 
 function createTagInNoteMenu(id){
     const tag = {
@@ -625,4 +646,4 @@ function createTagInNoteMenu(id){
     renderNoteTags(id)
     addTagToNoteMenu(id)
     renderNotes()
-}
+}// Create new tag and link to note (Створення нового тегу та прив’язка до нотатки)
